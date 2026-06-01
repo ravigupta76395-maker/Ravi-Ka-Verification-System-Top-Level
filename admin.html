@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Admin Panel — PIRO BOT</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap');
+
+:root {
+  --bg: #060609;
+  --s1: #0d0d14;
+  --s2: #12121c;
+  --border: #1a1a28;
+  --accent: #ff4757;
+  --accent2: #ff6b35;
+  --gold: #ffd32a;
+  --green: #2ed573;
+  --blue: #1e90ff;
+  --purple: #a55eea;
+  --text: #e0e0f0;
+  --muted: #4a4a6a;
+  --font: 'Rajdhani', sans-serif;
+  --mono: 'Share Tech Mono', monospace;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ===== SCANLINE OVERLAY ===== */
+body::after{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.08) 2px,rgba(0,0,0,0.08) 4px);
+  pointer-events:none;
+  z-index:9999;
+}
+
+/* ===== LOGIN SCREEN ===== */
+#loginScreen{
+  position:fixed;
+  inset:0;
+  background:var(--bg);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+  flex-direction:column;
+  gap:0;
+}
+
+.login-box{
+  width:340px;
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:40px 32px;
+  position:relative;
+  overflow:hidden;
+  animation:loginIn .5s cubic-bezier(.16,1,.3,1) both;
+}
+
+@keyframes loginIn{
+  from{opacity:0;transform:scale(.94) translateY(20px);}
+  to{opacity:1;transform:scale(1) translateY(0);}
+}
+
+.login-box::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:2px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2),var(--gold));
+}
+
+.login-logo{
+  text-align:center;
+  margin-bottom:28px;
+}
+
+.login-logo .icon{
+  font-size:42px;
+  display:block;
+  margin-bottom:8px;
+  filter:drop-shadow(0 0 12px rgba(255,71,87,0.5));
+}
+
+.login-logo h2{
+  font-size:22px;
+  font-weight:700;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  color:#fff;
+}
+
+.login-logo p{
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--muted);
+  letter-spacing:2px;
+  margin-top:4px;
+}
+
+.input-wrap{
+  position:relative;
+  margin-bottom:16px;
+}
+
+.input-wrap input{
+  width:100%;
+  padding:13px 16px 13px 42px;
+  background:var(--s2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  color:var(--text);
+  font-family:var(--mono);
+  font-size:14px;
+  letter-spacing:2px;
+  outline:none;
+  transition:border-color .2s;
+}
+
+.input-wrap input:focus{
+  border-color:rgba(255,71,87,.4);
+}
+
+.input-wrap .ico{
+  position:absolute;
+  left:14px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:16px;
+  color:var(--muted);
+}
+
+.login-btn{
+  width:100%;
+  padding:14px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;
+  border-radius:10px;
+  color:#fff;
+  font-family:var(--font);
+  font-weight:700;
+  font-size:16px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:all .3s;
+  position:relative;
+  overflow:hidden;
+}
+
+.login-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 24px rgba(255,71,87,.35);
+}
+
+.login-err{
+  margin-top:12px;
+  text-align:center;
+  font-family:var(--mono);
+  font-size:12px;
+  color:var(--accent);
+  display:none;
+  animation:shake .4s ease;
+}
+
+@keyframes shake{
+  0%,100%{transform:translateX(0);}
+  25%{transform:translateX(-6px);}
+  75%{transform:translateX(6px);}
+}
+
+/* ===== MAIN PANEL ===== */
+#mainPanel{display:none;}
+
+/* Sidebar */
+.sidebar{
+  position:fixed;
+  left:0;top:0;bottom:0;
+  width:220px;
+  background:var(--s1);
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  z-index:100;
+}
+
+.sidebar-logo{
+  padding:24px 20px;
+  border-bottom:1px solid var(--border);
+}
+
+.sidebar-logo .tag{
+  font-family:var(--mono);
+  font-size:10px;
+  color:var(--accent);
+  letter-spacing:3px;
+  text-transform:uppercase;
+  display:block;
+  margin-bottom:4px;
+}
+
+.sidebar-logo h1{
+  font-size:20px;
+  font-weight:700;
+  letter-spacing:1px;
+  color:#fff;
+}
+
+.nav{
+  flex:1;
+  padding:16px 12px;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+
+.nav-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:11px 14px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:15px;
+  font-weight:600;
+  color:var(--muted);
+  transition:all .2s;
+  letter-spacing:.5px;
+}
+
+.nav-item:hover{
+  background:rgba(255,255,255,.04);
+  color:var(--text);
+}
+
+.nav-item.active{
+  background:rgba(255,71,87,.1);
+  color:var(--accent);
+  border-left:2px solid var(--accent);
+}
+
+.nav-item .ni{font-size:18px;}
+
+.sidebar-bottom{
+  padding:16px 12px;
+  border-top:1px solid var(--border);
+}
+
+.logout-btn{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 14px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:14px;
+  font-weight:600;
+  color:var(--muted);
+  transition:all .2s;
+}
+
+.logout-btn:hover{color:var(--accent);}
+
+/* Main content */
+.main{
+  margin-left:220px;
+  padding:28px;
+  min-height:100vh;
+}
+
+/* Topbar */
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:28px;
+}
+
+.page-title{
+  font-size:26px;
+  font-weight:700;
+  letter-spacing:1px;
+}
+
+.page-title span{color:var(--accent);}
+
+.live-badge{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-family:var(--mono);
+  font-size:12px;
+  color:var(--green);
+  background:rgba(46,213,115,.08);
+  border:1px solid rgba(46,213,115,.2);
+  border-radius:20px;
+  padding:6px 14px;
+}
+
+.live-dot{
+  width:7px;height:7px;
+  border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 8px var(--green);
+  animation:livePulse 1.5s infinite;
+}
+
+@keyframes livePulse{
+  0%,100%{opacity:1;}
+  50%{opacity:.3;}
+}
+
+/* ===== TABS ===== */
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+
+/* ===== STATS CARDS ===== */
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+  margin-bottom:24px;
+}
+
+.stat-card{
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:20px;
+  position:relative;
+  overflow:hidden;
+  transition:transform .2s;
+}
+
+.stat-card:hover{transform:translateY(-2px);}
+
+.stat-card::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;height:2px;
+}
+
+.stat-card.red::before{background:linear-gradient(90deg,var(--accent),transparent);}
+.stat-card.orange::before{background:linear-gradient(90deg,var(--accent2),transparent);}
+.stat-card.green::before{background:linear-gradient(90deg,var(--green),transparent);}
+.stat-card.blue::before{background:linear-gradient(90deg,var(--blue),transparent);}
+.stat-card.gold::before{background:linear-gradient(90deg,var(--gold),transparent);}
+.stat-card.purple::before{background:linear-gradient(90deg,var(--purple),transparent);}
+
+.stat-label{
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--muted);
+  letter-spacing:2px;
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+
+.stat-val{
+  font-size:32px;
+  font-weight:700;
+  color:#fff;
+  line-height:1;
+  margin-bottom:6px;
+}
+
+.stat-sub{
+  font-size:13px;
+  color:var(--muted);
+}
+
+.stat-icon{
+  position:absolute;
+  right:16px;top:16px;
+  font-size:28px;
+  opacity:.15;
+}
+
+/* ===== SECTION CARD ===== */
+.section{
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:24px;
+  margin-bottom:20px;
+}
+
+.section-title{
+  font-size:16px;
+  font-weight:700;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  color:var(--text);
+  margin-bottom:20px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.section-title::before{
+  content:'';
+  width:3px;height:18px;
+  background:var(--accent);
+  border-radius:2px;
+  flex-shrink:0;
+}
+
+/* ===== BOT LIST ===== */
+.bot-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.bot-item{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:14px 16px;
+  background:var(--s2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  transition:border-color .2s;
+}
+
+.bot-item:hover{border-color:rgba(255,71,87,.3);}
+
+.bot-avatar{
+  width:40px;height:40px;
+  border-radius:10px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+  flex-shrink:0;
+}
+
+.bot-info{flex:1;}
+
+.bot-name{
+  font-size:15px;
+  font-weight:700;
+  color:#fff;
+  margin-bottom:3px;
+}
+
+.bot-token{
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--muted);
+}
+
+.bot-status{
+  font-family:var(--mono);
+  font-size:12px;
+  padding:4px 10px;
+  border-radius:20px;
+}
+
+.bot-status.online{
+  background:rgba(46,213,115,.1);
+  border:1px solid rgba(46,213,115,.25);
+  color:var(--green);
+}
+
+.bot-status.offline{
+  background:rgba(255,71,87,.1);
+  border:1px solid rgba(255,71,87,.25);
+  color:var(--accent);
+}
+
+.bot-remove{
+  background:none;
+  border:none;
+  color:var(--muted);
+  cursor:pointer;
+  font-size:18px;
+  padding:4px;
+  transition:color .2s;
+}
+
+.bot-remove:hover{color:var(--accent);}
+
+.add-bot-form{
+  display:flex;
+  gap:10px;
+  margin-top:16px;
+}
+
+.add-bot-form input{
+  flex:1;
+  padding:12px 16px;
+  background:var(--s2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  color:var(--text);
+  font-family:var(--mono);
+  font-size:13px;
+  outline:none;
+  transition:border-color .2s;
+}
+
+.add-bot-form input:focus{border-color:rgba(255,71,87,.4);}
+
+.add-bot-form input::placeholder{color:var(--muted);}
+
+.btn-add{
+  padding:12px 20px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;
+  border-radius:10px;
+  color:#fff;
+  font-family:var(--font);
+  font-weight:700;
+  font-size:14px;
+  cursor:pointer;
+  transition:all .2s;
+  white-space:nowrap;
+}
+
+.btn-add:hover{
+  transform:translateY(-1px);
+  box-shadow:0 4px 16px rgba(255,71,87,.3);
+}
+
+/* ===== FAIL RATE CONTROL ===== */
+.fail-control{
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+
+.fail-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:18px 20px;
+  background:var(--s2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  gap:20px;
+}
+
+.fail-info{flex:1;}
+
+.fail-name{
+  font-size:15px;
+  font-weight:700;
+  color:#fff;
+  margin-bottom:4px;
+}
+
+.fail-desc{
+  font-size:12px;
+  color:var(--muted);
+  font-family:var(--mono);
+}
+
+.fail-right{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  flex-shrink:0;
+}
+
+.fail-pct{
+  font-size:28px;
+  font-weight:700;
+  font-family:var(--mono);
+  min-width:60px;
+  text-align:right;
+  transition:color .3s;
+}
+
+.fail-pct.low{color:var(--green);}
+.fail-pct.mid{color:var(--gold);}
+.fail-pct.high{color:var(--accent);}
+
+.slider-wrap{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  width:180px;
+}
+
+input[type=range]{
+  -webkit-appearance:none;
+  width:100%;
+  height:4px;
+  border-radius:2px;
+  background:var(--border);
+  outline:none;
+  cursor:pointer;
+}
+
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:18px;height:18px;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  box-shadow:0 0 8px rgba(255,71,87,.5);
+  cursor:pointer;
+}
+
+.slider-labels{
+  display:flex;
+  justify-content:space-between;
+  font-family:var(--mono);
+  font-size:10px;
+  color:var(--muted);
+}
+
+.save-btn{
+  padding:14px 24px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;
+  border-radius:10px;
+  color:#fff;
+  font-family:var(--font);
+  font-weight:700;
+  font-size:15px;
+  letter-spacing:1px;
+  cursor:pointer;
+  transition:all .3s;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  width:fit-content;
+}
+
+.save-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 24px rgba(255,71,87,.35);
+}
+
+.save-toast{
+  display:none;
+  padding:10px 16px;
+  background:rgba(46,213,115,.1);
+  border:1px solid rgba(46,213,115,.3);
+  border-radius:10px;
+  color:var(--green);
+  font-family:var(--mono);
+  font-size:13px;
+  animation:fadeIn .3s ease;
+  margin-top:12px;
+}
+
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(4px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+/* ===== FAIL RATE BAR VISUAL ===== */
+.rate-bar-wrap{
+  width:100%;
+  height:6px;
+  background:var(--border);
+  border-radius:3px;
+  margin-top:8px;
+  overflow:hidden;
+}
+
+.rate-bar{
+  height:100%;
+  border-radius:3px;
+  transition:width .4s ease, background .4s;
+}
+
+/* ===== LOG TABLE ===== */
+.log-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+
+.log-table th{
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:2px;
+  color:var(--muted);
+  text-transform:uppercase;
+  padding:10px 14px;
+  text-align:left;
+  border-bottom:1px solid var(--border);
+}
+
+.log-table td{
+  padding:12px 14px;
+  border-bottom:1px solid rgba(255,255,255,.03);
+  font-family:var(--mono);
+  font-size:12px;
+  color:var(--text);
+}
+
+.log-table tr:hover td{background:rgba(255,255,255,.02);}
+
+.badge{
+  padding:3px 10px;
+  border-radius:20px;
+  font-size:11px;
+  font-weight:600;
+}
+
+.badge.pass{background:rgba(46,213,115,.1);color:var(--green);border:1px solid rgba(46,213,115,.25);}
+.badge.fail{background:rgba(255,71,87,.1);color:var(--accent);border:1px solid rgba(255,71,87,.25);}
+.badge.vpn{background:rgba(255,204,0,.1);color:var(--gold);border:1px solid rgba(255,204,0,.25);}
+.badge.block{background:rgba(165,94,234,.1);color:var(--purple);border:1px solid rgba(165,94,234,.25);}
+
+/* ===== SETTINGS ===== */
+.setting-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:16px 0;
+  border-bottom:1px solid var(--border);
+}
+
+.setting-row:last-child{border-bottom:none;}
+
+.setting-label{font-size:15px;font-weight:600;}
+.setting-desc{font-size:12px;color:var(--muted);margin-top:3px;}
+
+/* Toggle switch */
+.toggle{
+  position:relative;
+  width:48px;height:26px;
+  flex-shrink:0;
+}
+
+.toggle input{opacity:0;width:0;height:0;}
+
+.toggle-slider{
+  position:absolute;
+  inset:0;
+  background:var(--border);
+  border-radius:13px;
+  cursor:pointer;
+  transition:.3s;
+}
+
+.toggle-slider::before{
+  content:'';
+  position:absolute;
+  width:20px;height:20px;
+  border-radius:50%;
+  background:#fff;
+  left:3px;top:3px;
+  transition:.3s;
+}
+
+.toggle input:checked + .toggle-slider{
+  background:var(--accent);
+  box-shadow:0 0 8px rgba(255,71,87,.4);
+}
+
+.toggle input:checked + .toggle-slider::before{
+  transform:translateX(22px);
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+  .sidebar{width:60px;}
+  .sidebar .nav-item span,
+  .sidebar-logo h1,
+  .sidebar-logo .tag,
+  .sidebar-logo p,
+  .logout-btn span{display:none;}
+  .main{margin-left:60px;padding:16px;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .fail-row{flex-direction:column;align-items:flex-start;}
+  .fail-right{width:100%;}
+  .slider-wrap{width:100%;}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN SCREEN ============ -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <span class="icon">🛡️</span>
+      <h2>PIRO ADMIN</h2>
+      <p>SECURE ACCESS PANEL</p>
+    </div>
+    <div class="input-wrap">
+      <span class="ico">🔑</span>
+      <input type="password" id="passInput" placeholder="Enter Password" onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <button class="login-btn" onclick="doLogin()">⚡ ACCESS PANEL</button>
+    <div class="login-err" id="loginErr">❌ Wrong Password. Access Denied.</div>
+  </div>
+</div>
+
+<!-- ============ MAIN PANEL ============ -->
+<div id="mainPanel">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <span class="tag">// ADMIN</span>
+      <h1>PIRO BOT</h1>
+    </div>
+    <nav class="nav">
+      <div class="nav-item active" onclick="showTab('dashboard',this)">
+        <span class="ni">📊</span><span>Dashboard</span>
+      </div>
+      <div class="nav-item" onclick="showTab('bots',this)">
+        <span class="ni">🤖</span><span>Connected Bots</span>
+      </div>
+      <div class="nav-item" onclick="showTab('failrate',this)">
+        <span class="ni">⚙️</span><span>Fail Rate</span>
+      </div>
+      <div class="nav-item" onclick="showTab('logs',this)">
+        <span class="ni">📋</span><span>Verify Logs</span>
+      </div>
+      <div class="nav-item" onclick="showTab('settings',this)">
+        <span class="ni">🔧</span><span>Settings</span>
+      </div>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="logout-btn" onclick="doLogout()">
+        <span>🚪</span><span>Logout</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+    <div class="topbar">
+      <div class="page-title" id="pageTitle"><span>Dashboard</span></div>
+      <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+    </div>
+
+    <!-- ===== DASHBOARD TAB ===== -->
+    <div class="tab-content active" id="tab-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card red">
+          <div class="stat-icon">🤖</div>
+          <div class="stat-label">CONNECTED BOTS</div>
+          <div class="stat-val" id="statBots">0</div>
+          <div class="stat-sub">Active bots</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon">✅</div>
+          <div class="stat-label">TOTAL VERIFIED</div>
+          <div class="stat-val" id="statVerified">0</div>
+          <div class="stat-sub">All time</div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-icon">❌</div>
+          <div class="stat-label">TOTAL FAILED</div>
+          <div class="stat-val" id="statFailed">0</div>
+          <div class="stat-sub">Blocked / failed</div>
+        </div>
+        <div class="stat-card gold">
+          <div class="stat-icon">🚫</div>
+          <div class="stat-label">VPN BLOCKED</div>
+          <div class="stat-val" id="statVpn">0</div>
+          <div class="stat-sub">VPN detected</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-icon">📱</div>
+          <div class="stat-label">SAME DEVICE</div>
+          <div class="stat-val" id="statDevice">0</div>
+          <div class="stat-sub">Duplicate device</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-icon">⚙️</div>
+          <div class="stat-label">FAIL RATE</div>
+          <div class="stat-val" id="statFailRate">0%</div>
+          <div class="stat-sub">Current setting</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Recent Activity</div>
+        <table class="log-table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Bot</th>
+              <th>Status</th>
+              <th>Reason</th>
+              <th>IP</th>
+            </tr>
+          </thead>
+          <tbody id="recentLogs"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== BOTS TAB ===== -->
+    <div class="tab-content" id="tab-bots">
+      <div class="section">
+        <div class="section-title">Connected Bots (<span id="botCount">0</span>)</div>
+        <div class="bot-list" id="botList"></div>
+        <div class="add-bot-form">
+          <input type="text" id="newBotToken" placeholder="Enter Bot Token (e.g. 123456:ABC...)"/>
+          <button class="btn-add" onclick="addBot()">➕ Add Bot</button>
+        </div>
+        <div class="save-toast" id="botToast">✅ Bot Added Successfully!</div>
+      </div>
+    </div>
+
+    <!-- ===== FAIL RATE TAB ===== -->
+    <div class="tab-content" id="tab-failrate">
+      <div class="section">
+        <div class="section-title">Verification Fail Rate Control</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:20px;font-family:var(--mono);">
+          // Set % of users whose verification will FAIL → they won't get paid rewards.
+        </p>
+
+        <div class="fail-control">
+
+          <div class="fail-row">
+            <div class="fail-info">
+              <div class="fail-name">🌍 Global Fail Rate</div>
+              <div class="fail-desc">Applies to ALL bots. Override per-bot below.</div>
+              <div class="rate-bar-wrap"><div class="rate-bar" id="globalBar"></div></div>
+            </div>
+            <div class="fail-right">
+              <div class="slider-wrap">
+                <input type="range" min="0" max="100" value="0" id="globalSlider" oninput="updateSlider('global')"/>
+                <div class="slider-labels"><span>0%</span><span>50%</span><span>100%</span></div>
+              </div>
+              <div class="fail-pct low" id="globalPct">0%</div>
+            </div>
+          </div>
+
+          <div id="perBotSliders"></div>
+
+        </div>
+
+        <br/>
+        <button class="save-btn" onclick="saveFailRates()">💾 Save Settings</button>
+        <div class="save-toast" id="failToast">✅ Fail Rates Saved!</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">How It Works</div>
+        <div style="display:grid;gap:12px;">
+          <div style="padding:14px;background:var(--s2);border:1px solid var(--border);border-radius:10px;font-size:13px;color:var(--muted);font-family:var(--mono);">
+            📌 Global = 30% → 30 out of every 100 users will get "Verification Failed"
+          </div>
+          <div style="padding:14px;background:var(--s2);border:1px solid var(--border);border-radius:10px;font-size:13px;color:var(--muted);font-family:var(--mono);">
+            📌 Failed users → webhook sends <code style="color:var(--accent)">status: "fail", message: "Verification Failed"</code>
+          </div>
+          <div style="padding:14px;background:var(--s2);border:1px solid var(--border);border-radius:10px;font-size:13px;color:var(--muted);font-family:var(--mono);">
+            📌 Bot receives fail → user does NOT get paid rewards
+          </div>
+          <div style="padding:14px;background:var(--s2);border:1px solid var(--border);border-radius:10px;font-size:13px;color:var(--muted);font-family:var(--mono);">
+            📌 0% = Everyone passes | 100% = No one passes
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== LOGS TAB ===== -->
+    <div class="tab-content" id="tab-logs">
+      <div class="section">
+        <div class="section-title">Verification Logs</div>
+        <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+          <button class="btn-add" style="background:var(--s2);border:1px solid var(--border);color:var(--text);font-size:13px;padding:8px 16px;" onclick="filterLogs('all')">All</button>
+          <button class="btn-add" style="background:rgba(46,213,115,.1);border:1px solid rgba(46,213,115,.2);color:var(--green);font-size:13px;padding:8px 16px;" onclick="filterLogs('pass')">✅ Pass</button>
+          <button class="btn-add" style="background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.2);color:var(--accent);font-size:13px;padding:8px 16px;" onclick="filterLogs('fail')">❌ Fail</button>
+          <button class="btn-add" style="background:rgba(255,204,0,.1);border:1px solid rgba(255,204,0,.2);color:var(--gold);font-size:13px;padding:8px 16px;" onclick="filterLogs('vpn')">🚫 VPN</button>
+          <button class="btn-add" style="margin-left:auto;background:var(--s2);border:1px solid var(--border);color:var(--muted);font-size:13px;padding:8px 16px;" onclick="clearLogs()">🗑️ Clear</button>
+        </div>
+        <table class="log-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Time</th>
+              <th>Bot</th>
+              <th>Hash</th>
+              <th>Status</th>
+              <th>Reason</th>
+              <th>IP</th>
+            </tr>
+          </thead>
+          <tbody id="fullLogs"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== SETTINGS TAB ===== -->
+    <div class="tab-content" id="tab-settings">
+      <div class="section">
+        <div class="section-title">Panel Settings</div>
+
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Change Admin Password</div>
+            <div class="setting-desc">Update the panel access password</div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <input type="password" id="newPass" placeholder="New Password" style="padding:10px 14px;background:var(--s2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;width:180px;"/>
+            <button class="btn-add" onclick="changePass()" style="font-size:13px;padding:10px 16px;">Save</button>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">VPN Detection</div>
+            <div class="setting-desc">Block users with VPN/Proxy</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="vpnToggle" checked onchange="saveSetting('vpn',this.checked)"/>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Same Device Block</div>
+            <div class="setting-desc">Block multiple accounts on same device</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="deviceToggle" checked onchange="saveSetting('device',this.checked)"/>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Auto Log Cleanup</div>
+            <div class="setting-desc">Auto-delete logs older than 7 days</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="cleanupToggle" onchange="saveSetting('cleanup',this.checked)"/>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="save-toast" id="settingsToast" style="display:none;">✅ Settings Saved!</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Danger Zone</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <button class="btn-add" style="background:rgba(255,71,87,.15);border:1px solid rgba(255,71,87,.3);" onclick="if(confirm('Clear all logs?'))clearLogs()">🗑️ Clear All Logs</button>
+          <button class="btn-add" style="background:rgba(255,71,87,.15);border:1px solid rgba(255,71,87,.3);" onclick="if(confirm('Remove all bots?'))clearBots()">🤖 Remove All Bots</button>
+          <button class="btn-add" style="background:rgba(255,71,87,.15);border:1px solid rgba(255,71,87,.3);" onclick="if(confirm('Reset ALL data?'))resetAll()">⚠️ Full Reset</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /mainPanel -->
+
+<script>
+// =================== PASSWORD ===================
+const DEFAULT_PASS = '@Ravi12345';
+
+function getPass(){return localStorage.getItem('admin_pass')||DEFAULT_PASS;}
+
+function doLogin(){
+  const val = document.getElementById('passInput').value;
+  if(val === getPass()){
+    localStorage.setItem('admin_logged','1');
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('mainPanel').style.display='block';
+    initPanel();
+  } else {
+    const err = document.getElementById('loginErr');
+    err.style.display='block';
+    err.style.animation='none';
+    setTimeout(()=>err.style.animation='shake .4s ease',10);
+  }
+}
+
+function doLogout(){
+  localStorage.removeItem('admin_logged');
+  location.reload();
+}
+
+function changePass(){
+  const np = document.getElementById('newPass').value.trim();
+  if(!np){alert('Enter a password!');return;}
+  localStorage.setItem('admin_pass',np);
+  showToast('settingsToast');
+  document.getElementById('newPass').value='';
+}
+
+// Auto-login if already logged in
+if(localStorage.getItem('admin_logged')==='1'){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('mainPanel').style.display='block';
+}
+
+// =================== DATA STORE ===================
+function getData(k,def){try{return JSON.parse(localStorage.getItem('admin_'+k))||def;}catch{return def;}}
+function saveData(k,v){localStorage.setItem('admin_'+k,JSON.stringify(v));}
+
+// =================== INIT ===================
+function initPanel(){
+  renderBots();
+  renderStats();
+  renderLogs('all');
+  renderRecentLogs();
+  renderPerBotSliders();
+  loadSettings();
+
+  // Load global slider
+  const fr = getData('failRates',{});
+  const gv = fr.global||0;
+  document.getElementById('globalSlider').value=gv;
+  updateSlider('global');
+}
+
+// =================== TABS ===================
+function showTab(name,el){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  el.classList.add('active');
+  const titles={dashboard:'Dashboard',bots:'Connected Bots',failrate:'Fail Rate Control',logs:'Verify Logs',settings:'Settings'};
+  document.getElementById('pageTitle').innerHTML='<span>'+titles[name]+'</span>';
+  if(name==='logs')renderLogs('all');
+  if(name==='failrate')renderPerBotSliders();
+}
+
+// =================== BOTS ===================
+function getBots(){return getData('bots',[]);}
+function saveBots(b){saveData('bots',b);}
+
+function addBot(){
+  const token = document.getElementById('newBotToken').value.trim();
+  if(!token){alert('Enter a bot token!');return;}
+  if(!token.includes(':')){alert('Invalid token format!');return;}
+
+  const bots = getBots();
+  if(bots.find(b=>b.token===token)){alert('Bot already added!');return;}
+
+  // Fetch bot username
+  fetch('https://api.telegram.org/bot'+token+'/getMe')
+    .then(r=>r.json())
+    .then(d=>{
+      if(!d.ok){alert('Invalid token!');return;}
+      const name = d.result.username;
+      bots.push({token,name,added:Date.now(),status:'online'});
+      saveBots(bots);
+      document.getElementById('newBotToken').value='';
+      renderBots();
+      renderStats();
+      renderPerBotSliders();
+      showToast('botToast');
+    })
+    .catch(()=>{
+      // offline mode - save anyway
+      bots.push({token,name:'Unknown',added:Date.now(),status:'online'});
+      saveBots(bots);
+      document.getElementById('newBotToken').value='';
+      renderBots();
+      renderStats();
+      renderPerBotSliders();
+      showToast('botToast');
+    });
+}
+
+function removeBot(token){
+  if(!confirm('Remove this bot?'))return;
+  let bots = getBots().filter(b=>b.token!==token);
+  saveBots(bots);
+  renderBots();
+  renderStats();
+  renderPerBotSliders();
+}
+
+function clearBots(){
+  saveBots([]);
+  renderBots();
+  renderStats();
+  renderPerBotSliders();
+}
+
+function renderBots(){
+  const bots = getBots();
+  document.getElementById('botCount').textContent=bots.length;
+  const list = document.getElementById('botList');
+  if(!bots.length){
+    list.innerHTML='<div style="text-align:center;padding:24px;color:var(--muted);font-family:var(--mono);font-size:13px;">No bots connected yet.</div>';
+    return;
+  }
+  list.innerHTML = bots.map(b=>`
+    <div class="bot-item">
+      <div class="bot-avatar">🤖</div>
+      <div class="bot-info">
+        <div class="bot-name">@${b.name}</div>
+        <div class="bot-token">${b.token.substring(0,20)}...</div>
+      </div>
+      <span class="bot-status online">● ONLINE</span>
+      <button class="bot-remove" onclick="removeBot('${b.token}')">✕</button>
+    </div>
+  `).join('');
+}
+
+// =================== FAIL RATE ===================
+function updateSlider(id){
+  const slider = document.getElementById(id+'Slider');
+  const pct = document.getElementById(id+'Pct');
+  const bar = document.getElementById(id+'Bar');
+  const v = parseInt(slider.value);
+  pct.textContent = v+'%';
+  pct.className='fail-pct '+(v<30?'low':v<70?'mid':'high');
+  if(bar){
+    bar.style.width=v+'%';
+    bar.style.background=v<30?'var(--green)':v<70?'var(--gold)':'var(--accent)';
+  }
+}
+
+function renderPerBotSliders(){
+  const bots = getBots();
+  const fr = getData('failRates',{});
+  const wrap = document.getElementById('perBotSliders');
+  if(!bots.length){
+    wrap.innerHTML='<div style="padding:14px;background:var(--s2);border:1px solid var(--border);border-radius:10px;font-size:13px;color:var(--muted);font-family:var(--mono);">Add bots first to set per-bot fail rates.</div>';
+    return;
+  }
+  wrap.innerHTML = bots.map(b=>{
+    const v = fr['bot_'+b.token]||0;
+    return `
+    <div class="fail-row">
+      <div class="fail-info">
+        <div class="fail-name">🤖 @${b.name}</div>
+        <div class="fail-desc">${b.token.substring(0,18)}...</div>
+        <div class="rate-bar-wrap"><div class="rate-bar" id="bar_${b.token.replace(/[^a-z0-9]/gi,'_')}"></div></div>
+      </div>
+      <div class="fail-right">
+        <div class="slider-wrap">
+          <input type="range" min="0" max="100" value="${v}" id="slider_${b.token.replace(/[^a-z0-9]/gi,'_')}" oninput="updateBotSlider('${b.token}')"/>
+          <div class="slider-labels"><span>0%</span><span>50%</span><span>100%</span></div>
+        </div>
+        <div class="fail-pct ${v<30?'low':v<70?'mid':'high'}" id="pct_${b.token.replace(/[^a-z0-9]/gi,'_')}">${v}%</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Init bars
+  bots.forEach(b=>{
+    const key = b.token.replace(/[^a-z0-9]/gi,'_');
+    updateBotSlider(b.token);
+  });
+}
+
+function updateBotSlider(token){
+  const key = token.replace(/[^a-z0-9]/gi,'_');
+  const slider = document.getElementById('slider_'+key);
+  const pct = document.getElementById('pct_'+key);
+  const bar = document.getElementById('bar_'+key);
+  if(!slider)return;
+  const v = parseInt(slider.value);
+  pct.textContent=v+'%';
+  pct.className='fail-pct '+(v<30?'low':v<70?'mid':'high');
+  if(bar){
+    bar.style.width=v+'%';
+    bar.style.background=v<30?'var(--green)':v<70?'var(--gold)':'var(--accent)';
+  }
+}
+
+function saveFailRates(){
+  const fr = {};
+  fr.global = parseInt(document.getElementById('globalSlider').value);
+
+  getBots().forEach(b=>{
+    const key = b.token.replace(/[^a-z0-9]/gi,'_');
+    const s = document.getElementById('slider_'+key);
+    if(s) fr['bot_'+b.token]=parseInt(s.value);
+  });
+
+  saveData('failRates',fr);
+  renderStats();
+  showToast('failToast');
+}
+
+// =================== LOGS ===================
+function getLogs(){return getData('logs',[]);}
+
+function addLog(log){
+  const logs = getLogs();
+  logs.unshift({...log, id:Date.now(), time:new Date().toLocaleTimeString()});
+  if(logs.length>500)logs.splice(500);
+  saveData('logs',logs);
+}
+
+function clearLogs(){
+  saveData('logs',[]);
+  renderLogs('all');
+  renderRecentLogs();
+  renderStats();
+}
+
+let currentFilter='all';
+function filterLogs(f){currentFilter=f;renderLogs(f);}
+
+function renderLogs(filter){
+  currentFilter=filter;
+  let logs = getLogs();
+  if(filter!=='all') logs=logs.filter(l=>{
+    if(filter==='pass')return l.status==='pass';
+    if(filter==='fail')return l.status==='fail'&&l.reason!=='VPN Detected';
+    if(filter==='vpn')return l.reason==='VPN Detected';
+    return true;
+  });
+
+  const tbody = document.getElementById('fullLogs');
+  if(!logs.length){
+    tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted);font-family:var(--mono);">No logs found.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = logs.map((l,i)=>`
+    <tr>
+      <td style="color:var(--muted)">${i+1}</td>
+      <td>${l.time}</td>
+      <td style="color:var(--text)">@${l.bot||'unknown'}</td>
+      <td style="color:var(--muted)">${(l.hash||'').substring(0,8)}...</td>
+      <td><span class="badge ${l.status==='pass'?'pass':l.reason==='VPN Detected'?'vpn':l.reason==='Device already used'?'block':'fail'}">${l.status==='pass'?'✅ PASS':'❌ FAIL'}</span></td>
+      <td style="color:var(--muted)">${l.reason||'-'}</td>
+      <td style="color:var(--muted)">${l.ip||'-'}</td>
+    </tr>
+  `).join('');
+}
+
+function renderRecentLogs(){
+  const logs = getLogs().slice(0,5);
+  const tbody = document.getElementById('recentLogs');
+  if(!logs.length){
+    tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--muted);font-family:var(--mono);">No activity yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = logs.map(l=>`
+    <tr>
+      <td>${l.time}</td>
+      <td>@${l.bot||'?'}</td>
+      <td><span class="badge ${l.status==='pass'?'pass':l.reason==='VPN Detected'?'vpn':l.reason==='Device already used'?'block':'fail'}">${l.status==='pass'?'✅ PASS':'❌ FAIL'}</span></td>
+      <td style="color:var(--muted)">${l.reason||'-'}</td>
+      <td style="color:var(--muted)">${l.ip||'-'}</td>
+    </tr>
+  `).join('');
+}
+
+// =================== STATS ===================
+function renderStats(){
+  const logs = getLogs();
+  const bots = getBots();
+  const fr = getData('failRates',{});
+
+  document.getElementById('statBots').textContent = bots.length;
+  document.getElementById('statVerified').textContent = logs.filter(l=>l.status==='pass').length;
+  document.getElementById('statFailed').textContent = logs.filter(l=>l.status==='fail').length;
+  document.getElementById('statVpn').textContent = logs.filter(l=>l.reason==='VPN Detected').length;
+  document.getElementById('statDevice').textContent = logs.filter(l=>l.reason==='Device already used').length;
+  document.getElementById('statFailRate').textContent = (fr.global||0)+'%';
+}
+
+// =================== SETTINGS ===================
+function loadSettings(){
+  const s = getData('settings',{vpn:true,device:true,cleanup:false});
+  document.getElementById('vpnToggle').checked=s.vpn!==false;
+  document.getElementById('deviceToggle').checked=s.device!==false;
+  document.getElementById('cleanupToggle').checked=!!s.cleanup;
+}
+
+function saveSetting(key,val){
+  const s = getData('settings',{});
+  s[key]=val;
+  saveData('settings',s);
+  showToast('settingsToast');
+}
+
+// =================== TOAST ===================
+function showToast(id){
+  const t=document.getElementById(id);
+  t.style.display='block';
+  t.style.animation='none';
+  setTimeout(()=>t.style.animation='fadeIn .3s ease',10);
+  setTimeout(()=>t.style.display='none',3000);
+}
+
+// =================== RESET ===================
+function resetAll(){
+  ['admin_bots','admin_logs','admin_failRates','admin_settings'].forEach(k=>localStorage.removeItem(k));
+  initPanel();
+  showToast('settingsToast');
+}
+
+// =================== EXPOSE FOR verify.html ===================
+// verify.html can call: AdminPanel.logVerify({bot,hash,status,reason,ip})
+window.AdminPanel = {
+  logVerify: function(data){addLog(data);},
+  getFailRate: function(botToken){
+    const fr = getData('failRates',{});
+    return fr['bot_'+botToken]!==undefined ? fr['bot_'+botToken] : (fr.global||0);
+  },
+  getSettings: function(){return getData('settings',{vpn:true,device:true});}
+};
+
+// =================== AUTO INIT ===================
+if(localStorage.getItem('admin_logged')==='1'){
+  initPanel();
+}
+</script>
+</body>
+</html>
