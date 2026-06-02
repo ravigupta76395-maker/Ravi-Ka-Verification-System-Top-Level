@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>RAVI MAKER — Admin Panel</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root{
+  --bg:#07070f;
+  --s1:#0e0e1a;
+  --s2:#13131f;
+  --s3:#18182a;
+  --border:#1f1f35;
+  --border2:#2a2a45;
+  --accent:#6c63ff;
+  --accent2:#a78bfa;
+  --cyan:#00d4ff;
+  --green:#00f59b;
+  --red:#ff4560;
+  --orange:#ff8c42;
+  --gold:#ffd166;
+  --text:#e8e8ff;
+  --muted:#4a4a7a;
+  --muted2:#6a6a9a;
+  --font:'Inter',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--s1);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+/* ===== LOGIN ===== */
+#loginScreen{
+  position:fixed;inset:0;
+  background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  z-index:9999;
+  flex-direction:column;
+}
+
+.login-wrap{
+  width:380px;
+  animation:popIn .5s cubic-bezier(.16,1,.3,1) both;
+}
+
+@keyframes popIn{
+  from{opacity:0;transform:scale(.94) translateY(20px);}
+  to{opacity:1;transform:scale(1) translateY(0);}
+}
+
+.login-header{
+  text-align:center;
+  margin-bottom:36px;
+}
+
+.login-logo{
+  width:64px;height:64px;
+  background:linear-gradient(135deg,var(--accent),var(--cyan));
+  border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;
+  margin:0 auto 16px;
+  box-shadow:0 8px 32px rgba(108,99,255,.35);
+}
+
+.login-header h1{
+  font-size:24px;font-weight:800;
+  background:linear-gradient(135deg,#fff,var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  letter-spacing:-.5px;
+}
+
+.login-header p{
+  font-size:13px;color:var(--muted2);margin-top:6px;
+  font-family:var(--mono);letter-spacing:1px;
+}
+
+.login-card{
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:32px;
+  position:relative;
+  overflow:hidden;
+}
+
+.login-card::before{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--accent),var(--cyan),transparent);
+}
+
+.field{margin-bottom:16px;}
+
+.field label{
+  display:block;
+  font-size:12px;font-weight:600;
+  color:var(--muted2);letter-spacing:1px;
+  text-transform:uppercase;margin-bottom:8px;
+  font-family:var(--mono);
+}
+
+.field input{
+  width:100%;padding:13px 16px;
+  background:var(--s2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  color:var(--text);
+  font-family:var(--mono);font-size:14px;
+  outline:none;transition:border-color .2s,box-shadow .2s;
+}
+
+.field input:focus{
+  border-color:rgba(108,99,255,.5);
+  box-shadow:0 0 0 3px rgba(108,99,255,.1);
+}
+
+.login-btn{
+  width:100%;padding:14px;
+  background:linear-gradient(135deg,var(--accent),var(--cyan));
+  border:none;border-radius:12px;
+  color:#fff;font-family:var(--font);
+  font-weight:700;font-size:15px;
+  cursor:pointer;transition:all .3s;
+  letter-spacing:.3px;
+  box-shadow:0 4px 20px rgba(108,99,255,.3);
+}
+
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(108,99,255,.4);}
+
+.login-err{
+  margin-top:12px;text-align:center;
+  font-size:13px;color:var(--red);
+  font-family:var(--mono);display:none;
+  animation:shake .4s ease;
+}
+
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  width:240px;min-width:240px;
+  background:var(--s1);
+  border-right:1px solid var(--border);
+  height:100vh;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  transition:width .3s;
+}
+
+.sidebar.collapsed{width:68px;min-width:68px;}
+
+.sidebar-top{
+  padding:20px 16px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+}
+
+.sidebar-logo-icon{
+  width:36px;height:36px;min-width:36px;
+  background:linear-gradient(135deg,var(--accent),var(--cyan));
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+}
+
+.sidebar-logo-text{overflow:hidden;white-space:nowrap;}
+.sidebar-logo-text .name{font-size:15px;font-weight:800;color:#fff;letter-spacing:-.3px;}
+.sidebar-logo-text .tag{font-size:11px;color:var(--muted2);font-family:var(--mono);letter-spacing:1px;}
+
+.sidebar.collapsed .sidebar-logo-text{display:none;}
+
+.nav{flex:1;padding:12px 10px;overflow-y:auto;display:flex;flex-direction:column;gap:3px;}
+
+.nav-item{
+  display:flex;align-items:center;gap:12px;
+  padding:11px 12px;border-radius:12px;
+  cursor:pointer;transition:all .2s;
+  white-space:nowrap;overflow:hidden;
+  position:relative;
+}
+
+.nav-item:hover{background:rgba(255,255,255,.04);}
+
+.nav-item.active{
+  background:linear-gradient(135deg,rgba(108,99,255,.15),rgba(0,212,255,.08));
+  border:1px solid rgba(108,99,255,.2);
+}
+
+.nav-item .n-icon{
+  font-size:18px;min-width:20px;text-align:center;
+}
+
+.nav-item .n-label{
+  font-size:14px;font-weight:500;color:var(--muted2);
+  transition:color .2s;
+}
+
+.nav-item.active .n-label{color:var(--text);}
+.nav-item:hover .n-label{color:var(--text);}
+
+.nav-item .n-badge{
+  margin-left:auto;
+  background:var(--red);
+  color:#fff;
+  font-size:10px;font-weight:700;
+  padding:2px 6px;border-radius:20px;
+  font-family:var(--mono);
+}
+
+.sidebar.collapsed .n-label,.sidebar.collapsed .n-badge{display:none;}
+
+.nav-divider{
+  height:1px;background:var(--border);
+  margin:8px 4px;
+}
+
+.sidebar-footer{
+  padding:12px 10px;
+  border-top:1px solid var(--border);
+  display:flex;flex-direction:column;gap:4px;
+}
+
+.sidebar-footer .nav-item .n-label{font-size:13px;}
+
+/* ===== MAIN ===== */
+.main{
+  flex:1;height:100vh;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+
+/* Topbar */
+.topbar{
+  padding:16px 24px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:16px;
+  background:var(--s1);
+  flex-shrink:0;
+}
+
+.collapse-btn{
+  width:32px;height:32px;
+  background:var(--s2);border:1px solid var(--border);
+  border-radius:8px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;transition:all .2s;
+}
+.collapse-btn:hover{background:var(--s3);}
+
+.topbar-title{font-size:18px;font-weight:700;flex:1;}
+.topbar-title span{color:var(--accent2);}
+
+.topbar-right{display:flex;align-items:center;gap:10px;}
+
+.live-pill{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(0,245,155,.08);
+  border:1px solid rgba(0,245,155,.2);
+  border-radius:20px;padding:6px 12px;
+  font-family:var(--mono);font-size:11px;color:var(--green);
+}
+
+.live-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--green);
+  animation:livePulse 1.5s infinite;
+}
+
+@keyframes livePulse{0%,100%{opacity:1;}50%{opacity:.2;}}
+
+.time-display{
+  font-family:var(--mono);font-size:12px;
+  color:var(--muted2);
+  background:var(--s2);border:1px solid var(--border);
+  border-radius:8px;padding:6px 12px;
+}
+
+/* Content */
+.content{
+  flex:1;overflow-y:auto;
+  padding:24px;
+}
+
+/* ===== TAB PAGES ===== */
+.page{display:none;}
+.page.active{display:block;}
+
+/* ===== STAT CARDS ===== */
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;margin-bottom:20px;
+}
+
+.stat-card{
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:20px;position:relative;
+  overflow:hidden;cursor:default;
+  transition:transform .2s,border-color .2s;
+}
+
+.stat-card:hover{transform:translateY(-2px);border-color:var(--border2);}
+
+.stat-card::after{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:2px;
+}
+
+.stat-card.c-purple::after{background:linear-gradient(90deg,var(--accent),transparent);}
+.stat-card.c-cyan::after{background:linear-gradient(90deg,var(--cyan),transparent);}
+.stat-card.c-green::after{background:linear-gradient(90deg,var(--green),transparent);}
+.stat-card.c-red::after{background:linear-gradient(90deg,var(--red),transparent);}
+.stat-card.c-orange::after{background:linear-gradient(90deg,var(--orange),transparent);}
+.stat-card.c-gold::after{background:linear-gradient(90deg,var(--gold),transparent);}
+
+.stat-icon{
+  font-size:22px;margin-bottom:12px;
+}
+
+.stat-val{
+  font-size:30px;font-weight:800;
+  color:#fff;font-family:var(--mono);
+  line-height:1;margin-bottom:6px;
+  transition:all .3s;
+}
+
+.stat-label{
+  font-size:12px;color:var(--muted2);
+  font-weight:500;letter-spacing:.3px;
+}
+
+.stat-trend{
+  position:absolute;right:16px;top:20px;
+  font-size:11px;font-family:var(--mono);
+  padding:3px 8px;border-radius:20px;
+}
+
+.stat-trend.up{background:rgba(0,245,155,.1);color:var(--green);}
+.stat-trend.down{background:rgba(255,69,96,.1);color:var(--red);}
+
+/* ===== SECTION ===== */
+.section{
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:20px;
+  margin-bottom:16px;
+}
+
+.section-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:18px;
+}
+
+.section-title{
+  font-size:14px;font-weight:700;
+  letter-spacing:.3px;
+  display:flex;align-items:center;gap:8px;
+}
+
+.section-title::before{
+  content:'';width:3px;height:16px;
+  background:var(--accent);border-radius:2px;
+}
+
+/* ===== BOTS ===== */
+.bot-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:12px;
+}
+
+.bot-card{
+  background:var(--s2);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:16px;
+  transition:all .2s;
+  position:relative;
+  overflow:hidden;
+}
+
+.bot-card:hover{border-color:var(--border2);transform:translateY(-1px);}
+
+.bot-card::before{
+  content:'';position:absolute;
+  top:0;left:0;bottom:0;width:2px;
+  background:linear-gradient(180deg,var(--accent),var(--cyan));
+  border-radius:2px 0 0 2px;
+}
+
+.bot-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;}
+
+.bot-av{
+  width:44px;height:44px;border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),var(--cyan));
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;flex-shrink:0;
+  font-weight:700;color:#fff;
+}
+
+.bot-meta{flex:1;min-width:0;}
+
+.bot-name{
+  font-size:15px;font-weight:700;color:#fff;
+  margin-bottom:3px;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;
+}
+
+.bot-user{
+  font-family:var(--mono);font-size:11px;
+  color:var(--cyan);margin-bottom:4px;
+}
+
+.bot-id{
+  font-family:var(--mono);font-size:10px;
+  color:var(--muted);
+}
+
+.bot-status-badge{
+  padding:4px 10px;border-radius:20px;
+  font-size:11px;font-family:var(--mono);font-weight:600;
+  flex-shrink:0;
+}
+
+.bot-status-badge.online{
+  background:rgba(0,245,155,.1);
+  border:1px solid rgba(0,245,155,.25);
+  color:var(--green);
+}
+
+.bot-status-badge.offline{
+  background:rgba(255,69,96,.1);
+  border:1px solid rgba(255,69,96,.25);
+  color:var(--red);
+}
+
+.bot-stats{
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  gap:8px;margin-bottom:14px;
+}
+
+.bot-stat{
+  background:var(--s3);border-radius:8px;
+  padding:8px;text-align:center;
+}
+
+.bot-stat .bsv{
+  font-family:var(--mono);font-size:16px;
+  font-weight:700;color:#fff;
+}
+
+.bot-stat .bsl{
+  font-size:10px;color:var(--muted2);margin-top:2px;
+}
+
+.bot-actions{display:flex;gap:8px;}
+
+.bot-btn{
+  flex:1;padding:8px;
+  border:1px solid var(--border);
+  background:var(--s3);
+  border-radius:8px;
+  color:var(--muted2);
+  font-size:12px;font-family:var(--font);
+  cursor:pointer;transition:all .2s;
+  font-weight:500;
+}
+
+.bot-btn:hover{background:var(--border);color:var(--text);}
+.bot-btn.danger:hover{background:rgba(255,69,96,.15);border-color:rgba(255,69,96,.3);color:var(--red);}
+
+/* ===== ADD BOT FORM ===== */
+.add-bot-card{
+  background:var(--s2);
+  border:1px dashed var(--border2);
+  border-radius:14px;
+  padding:24px;
+  text-align:center;
+  transition:all .2s;
+}
+
+.add-bot-card:hover{border-color:rgba(108,99,255,.4);}
+
+.add-bot-icon{font-size:32px;margin-bottom:12px;}
+.add-bot-title{font-size:15px;font-weight:600;margin-bottom:4px;}
+.add-bot-sub{font-size:12px;color:var(--muted2);margin-bottom:16px;}
+
+.add-bot-input{
+  display:flex;gap:10px;margin-bottom:10px;
+}
+
+.add-bot-input input{
+  flex:1;padding:11px 14px;
+  background:var(--s3);border:1px solid var(--border);
+  border-radius:10px;color:var(--text);
+  font-family:var(--mono);font-size:13px;outline:none;
+  transition:border-color .2s;
+}
+
+.add-bot-input input:focus{border-color:rgba(108,99,255,.4);}
+.add-bot-input input::placeholder{color:var(--muted);}
+
+.btn-primary{
+  padding:11px 20px;
+  background:linear-gradient(135deg,var(--accent),var(--cyan));
+  border:none;border-radius:10px;
+  color:#fff;font-family:var(--font);
+  font-weight:700;font-size:13px;
+  cursor:pointer;transition:all .2s;
+  white-space:nowrap;
+}
+
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(108,99,255,.35);}
+
+/* ===== FAIL RATE ===== */
+.fail-card{
+  background:var(--s2);border:1px solid var(--border);
+  border-radius:14px;padding:20px;
+  margin-bottom:12px;transition:border-color .2s;
+}
+
+.fail-card:hover{border-color:var(--border2);}
+
+.fail-top{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.fail-av{
+  width:40px;height:40px;border-radius:10px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;
+}
+
+.fail-meta{flex:1;}
+.fail-name{font-size:14px;font-weight:700;color:#fff;margin-bottom:2px;}
+.fail-scope{font-size:11px;color:var(--muted2);font-family:var(--mono);}
+
+.fail-pct-display{
+  font-family:var(--mono);font-size:26px;font-weight:700;
+  transition:color .3s;min-width:60px;text-align:right;
+}
+
+.fail-pct-display.pct-safe{color:var(--green);}
+.fail-pct-display.pct-warn{color:var(--gold);}
+.fail-pct-display.pct-danger{color:var(--red);}
+
+.fail-slider-wrap{position:relative;}
+
+input[type=range]{
+  -webkit-appearance:none;
+  width:100%;height:4px;
+  border-radius:2px;background:var(--border);
+  outline:none;cursor:pointer;margin-bottom:6px;
+}
+
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:20px;height:20px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--cyan));
+  box-shadow:0 0 10px rgba(108,99,255,.5);
+  cursor:pointer;transition:transform .2s;
+}
+
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
+
+.slider-track-labels{
+  display:flex;justify-content:space-between;
+  font-family:var(--mono);font-size:10px;color:var(--muted);
+}
+
+.rate-visual{
+  height:6px;background:var(--border);
+  border-radius:3px;margin-top:10px;overflow:hidden;
+}
+
+.rate-fill{
+  height:100%;border-radius:3px;
+  transition:width .4s ease,background .4s;
+}
+
+/* ===== LOGS TABLE ===== */
+.log-filters{
+  display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;
+}
+
+.filter-btn{
+  padding:6px 14px;border-radius:20px;
+  font-size:12px;font-weight:600;
+  cursor:pointer;transition:all .2s;
+  border:1px solid var(--border);
+  background:var(--s2);color:var(--muted2);
+}
+
+.filter-btn:hover,.filter-btn.active{
+  background:rgba(108,99,255,.15);
+  border-color:rgba(108,99,255,.35);
+  color:var(--text);
+}
+
+.filter-btn.f-pass.active{background:rgba(0,245,155,.1);border-color:rgba(0,245,155,.3);color:var(--green);}
+.filter-btn.f-fail.active{background:rgba(255,69,96,.1);border-color:rgba(255,69,96,.3);color:var(--red);}
+.filter-btn.f-vpn.active{background:rgba(255,209,102,.1);border-color:rgba(255,209,102,.3);color:var(--gold);}
+.filter-btn.f-dev.active{background:rgba(255,140,66,.1);border-color:rgba(255,140,66,.3);color:var(--orange);}
+
+.log-table-wrap{overflow-x:auto;}
+
+table{width:100%;border-collapse:collapse;font-size:12px;}
+
+thead th{
+  font-family:var(--mono);font-size:10px;
+  letter-spacing:1.5px;color:var(--muted);
+  text-transform:uppercase;padding:10px 14px;
+  text-align:left;border-bottom:1px solid var(--border);
+  white-space:nowrap;
+}
+
+tbody td{
+  padding:12px 14px;
+  border-bottom:1px solid rgba(255,255,255,.025);
+  font-family:var(--mono);
+  vertical-align:middle;
+}
+
+tbody tr:hover td{background:rgba(255,255,255,.018);}
+
+.badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 10px;border-radius:20px;
+  font-size:10px;font-weight:700;white-space:nowrap;
+}
+
+.badge.pass{background:rgba(0,245,155,.1);color:var(--green);border:1px solid rgba(0,245,155,.2);}
+.badge.fail{background:rgba(255,69,96,.1);color:var(--red);border:1px solid rgba(255,69,96,.2);}
+.badge.vpn{background:rgba(255,209,102,.1);color:var(--gold);border:1px solid rgba(255,209,102,.2);}
+.badge.dev{background:rgba(255,140,66,.1);color:var(--orange);border:1px solid rgba(255,140,66,.2);}
+.badge.already{background:rgba(0,212,255,.1);color:var(--cyan);border:1px solid rgba(0,212,255,.2);}
+
+.empty-state{
+  text-align:center;padding:40px;
+  color:var(--muted);font-family:var(--mono);font-size:12px;
+}
+
+/* ===== SETTINGS ===== */
+.setting-group{
+  background:var(--s2);border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;margin-bottom:14px;
+}
+
+.setting-group-title{
+  padding:14px 18px;
+  font-size:12px;font-weight:700;
+  letter-spacing:1px;text-transform:uppercase;
+  color:var(--muted2);font-family:var(--mono);
+  border-bottom:1px solid var(--border);
+  background:rgba(255,255,255,.02);
+}
+
+.setting-row{
+  display:flex;align-items:center;
+  padding:16px 18px;
+  border-bottom:1px solid var(--border);
+  gap:16px;
+  transition:background .2s;
+}
+
+.setting-row:last-child{border-bottom:none;}
+.setting-row:hover{background:rgba(255,255,255,.02);}
+
+.setting-info{flex:1;}
+.setting-name{font-size:14px;font-weight:600;margin-bottom:3px;}
+.setting-desc{font-size:12px;color:var(--muted2);}
+
+.toggle{
+  position:relative;width:46px;height:24px;flex-shrink:0;
+}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-sl{
+  position:absolute;inset:0;
+  background:var(--border2);border-radius:12px;
+  cursor:pointer;transition:.3s;
+}
+.toggle-sl::before{
+  content:'';position:absolute;
+  width:18px;height:18px;border-radius:50%;
+  background:#fff;left:3px;top:3px;
+  transition:.3s;
+}
+.toggle input:checked+.toggle-sl{background:var(--accent);}
+.toggle input:checked+.toggle-sl::before{transform:translateX(22px);}
+
+.setting-input{
+  display:flex;gap:8px;align-items:center;
+}
+
+.setting-input input{
+  padding:9px 14px;background:var(--s3);
+  border:1px solid var(--border);border-radius:8px;
+  color:var(--text);font-family:var(--mono);font-size:13px;
+  outline:none;transition:border-color .2s;width:180px;
+}
+
+.setting-input input:focus{border-color:rgba(108,99,255,.4);}
+
+.btn-sm{
+  padding:9px 16px;
+  background:linear-gradient(135deg,var(--accent),var(--cyan));
+  border:none;border-radius:8px;
+  color:#fff;font-size:13px;font-weight:600;
+  cursor:pointer;transition:all .2s;white-space:nowrap;
+  font-family:var(--font);
+}
+
+.btn-sm:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(108,99,255,.3);}
+
+.btn-danger{
+  padding:9px 16px;background:rgba(255,69,96,.15);
+  border:1px solid rgba(255,69,96,.3);border-radius:8px;
+  color:var(--red);font-size:13px;font-weight:600;
+  cursor:pointer;transition:all .2s;white-space:nowrap;
+  font-family:var(--font);
+}
+
+.btn-danger:hover{background:rgba(255,69,96,.25);}
+
+/* ===== TOAST ===== */
+.toast{
+  position:fixed;bottom:24px;right:24px;z-index:9999;
+  padding:14px 20px;
+  background:var(--s2);border:1px solid var(--border2);
+  border-radius:12px;
+  font-size:13px;font-weight:600;
+  display:flex;align-items:center;gap:10px;
+  animation:toastIn .3s cubic-bezier(.16,1,.3,1) both;
+  box-shadow:0 8px 32px rgba(0,0,0,.4);
+  max-width:320px;
+}
+
+.toast.success{border-color:rgba(0,245,155,.3);color:var(--green);}
+.toast.error{border-color:rgba(255,69,96,.3);color:var(--red);}
+
+@keyframes toastIn{
+  from{opacity:0;transform:translateY(10px) scale(.96);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
+
+/* ===== LOADER ===== */
+.spinner{
+  display:inline-block;
+  width:14px;height:14px;
+  border:2px solid var(--border2);
+  border-top-color:var(--accent);
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+  vertical-align:middle;
+}
+
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ===== CHART BAR ===== */
+.mini-chart{
+  display:flex;align-items:flex-end;gap:4px;
+  height:48px;
+}
+
+.mini-bar{
+  flex:1;border-radius:4px 4px 0 0;
+  min-height:4px;
+  transition:height .4s ease;
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:900px){
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div id="loginScreen">
+  <div class="login-wrap">
+    <div class="login-header">
+      <div class="login-logo">🛡️</div>
+      <h1>RAVI MAKER ADMIN</h1>
+      <p>// SECURE ACCESS PANEL</p>
+    </div>
+    <div class="login-card">
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="passInput" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <button class="login-btn" onclick="doLogin()">⚡ Enter Panel</button>
+      <div class="login-err" id="loginErr">❌ Wrong password. Access denied.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN PANEL ===== -->
+<div id="mainPanel" style="display:none;width:100%;height:100%;display:none;flex:1;">
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-logo-icon">⚡</div>
+      <div class="sidebar-logo-text">
+        <div class="name">RAVI MAKER</div>
+        <div class="tag">ADMIN v2.0</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <div class="nav-item active" onclick="showPage('dashboard',this)">
+        <span class="n-icon">📊</span><span class="n-label">Dashboard</span>
+      </div>
+      <div class="nav-item" onclick="showPage('bots',this)">
+        <span class="n-icon">🤖</span><span class="n-label">Bots</span>
+        <span class="n-badge" id="navBotCount">0</span>
+      </div>
+      <div class="nav-item" onclick="showPage('failrate',this)">
+        <span class="n-icon">⚙️</span><span class="n-label">Fail Rate</span>
+      </div>
+      <div class="nav-item" onclick="showPage('logs',this)">
+        <span class="n-icon">📋</span><span class="n-label">Logs</span>
+        <span class="n-badge" id="navLogCount">0</span>
+      </div>
+      <div class="nav-divider"></div>
+      <div class="nav-item" onclick="showPage('settings',this)">
+        <span class="n-icon">🔧</span><span class="n-label">Settings</span>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="nav-item" onclick="doLogout()">
+        <span class="n-icon">🚪</span><span class="n-label">Logout</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="main">
+    <div class="topbar">
+      <div class="collapse-btn" onclick="toggleSidebar()">☰</div>
+      <div class="topbar-title" id="pageTitle">Dashboard</div>
+      <div class="topbar-right">
+        <div class="live-pill"><div class="live-dot"></div>LIVE</div>
+        <div class="time-display" id="timeClock">--:--:--</div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ===== DASHBOARD ===== -->
+      <div class="page active" id="page-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card c-purple">
+            <div class="stat-icon">🤖</div>
+            <div class="stat-val" id="st-bots">0</div>
+            <div class="stat-label">Connected Bots</div>
+          </div>
+          <div class="stat-card c-green">
+            <div class="stat-icon">✅</div>
+            <div class="stat-val" id="st-pass">0</div>
+            <div class="stat-label">Verified</div>
+          </div>
+          <div class="stat-card c-red">
+            <div class="stat-icon">❌</div>
+            <div class="stat-val" id="st-fail">0</div>
+            <div class="stat-label">Failed</div>
+          </div>
+          <div class="stat-card c-gold">
+            <div class="stat-icon">🚫</div>
+            <div class="stat-val" id="st-vpn">0</div>
+            <div class="stat-label">VPN Blocked</div>
+          </div>
+          <div class="stat-card c-orange">
+            <div class="stat-icon">📱</div>
+            <div class="stat-val" id="st-dev">0</div>
+            <div class="stat-label">Same Device</div>
+          </div>
+          <div class="stat-card c-cyan">
+            <div class="stat-icon">📈</div>
+            <div class="stat-val" id="st-rate">0%</div>
+            <div class="stat-label">Fail Rate</div>
+          </div>
+          <div class="stat-card c-purple">
+            <div class="stat-icon">🔄</div>
+            <div class="stat-val" id="st-today">0</div>
+            <div class="stat-label">Today</div>
+          </div>
+          <div class="stat-card c-green">
+            <div class="stat-icon">⚡</div>
+            <div class="stat-val" id="st-success-rate">0%</div>
+            <div class="stat-label">Success Rate</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title">Recent Verifications</div>
+            <button class="btn-sm" onclick="showPage('logs',document.querySelector('.nav-item:nth-child(4))'))">View All →</button>
+          </div>
+          <div class="log-table-wrap">
+            <table>
+              <thead><tr>
+                <th>Time</th><th>Bot</th><th>Status</th><th>Reason</th><th>IP</th>
+              </tr></thead>
+              <tbody id="dashLogs"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== BOTS ===== -->
+      <div class="page" id="page-bots">
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title">Connected Bots (<span id="botCountLabel">0</span>)</div>
+            <button class="btn-sm" onclick="refreshAllBots()">🔄 Refresh All</button>
+          </div>
+          <div class="bot-grid" id="botGrid"></div>
+        </div>
+
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title">Add New Bot</div>
+          </div>
+          <div class="add-bot-card">
+            <div class="add-bot-icon">🤖</div>
+            <div class="add-bot-title">Connect Your Telegram Bot</div>
+            <div class="add-bot-sub">Paste bot token below — username & info will be auto-fetched</div>
+            <div class="add-bot-input">
+              <input type="text" id="newTokenInput" placeholder="123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ"/>
+              <button class="btn-primary" onclick="addBot()">➕ Add Bot</button>
+            </div>
+            <div id="addBotStatus" style="font-size:12px;color:var(--muted2);font-family:var(--mono);margin-top:6px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== FAIL RATE ===== -->
+      <div class="page" id="page-failrate">
+        <div class="section" style="margin-bottom:16px;">
+          <div class="section-header">
+            <div class="section-title">How It Works</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+            <div style="padding:14px;background:var(--s2);border:1px solid var(--border);border-radius:10px;font-size:12px;color:var(--muted2);font-family:var(--mono);line-height:1.6;">
+              📌 Set % → That many users get <span style="color:var(--red)">Verification Failed</span>
+            </div>
+            <div style="padding:14px;background:var(--s2);border:1px solid var(--border);border-radius:10px;font-size:12px;color:var(--muted2);font-family:var(--mono);line-height:1.6;">
+              📌 Failed users → Bot receives <span style="color:var(--red)">fail</span> status → No reward paid
+            </div>
+            <div style="padding:14px;background:var(--s2);border:1px solid var(--border);border-radius:10px;font-size:12px;color:var(--muted2);font-family:var(--mono);line-height:1.6;">
+              📌 0% = All pass · 100% = Nobody passes
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title">Global Fail Rate</div>
+            <button class="btn-sm" onclick="saveFailRates()">💾 Save All</button>
+          </div>
+          <div class="fail-card">
+            <div class="fail-top">
+              <div class="fail-av">🌍</div>
+              <div class="fail-meta">
+                <div class="fail-name">Global — All Bots</div>
+                <div class="fail-scope">Applies to every bot unless overridden</div>
+              </div>
+              <div class="fail-pct-display pct-safe" id="globalPctDisplay">0%</div>
+            </div>
+            <div class="fail-slider-wrap">
+              <input type="range" min="0" max="100" value="0" id="globalSlider" oninput="updatePct('global')"/>
+              <div class="slider-track-labels"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+              <div class="rate-visual"><div class="rate-fill" id="globalFill"></div></div>
+            </div>
+          </div>
+
+          <div id="perBotFailSliders"></div>
+        </div>
+      </div>
+
+      <!-- ===== LOGS ===== -->
+      <div class="page" id="page-logs">
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title">Verification Logs (<span id="logCountLabel">0</span>)</div>
+            <button class="btn-danger" onclick="if(confirm('Clear all logs?')){clearLogs();}">🗑️ Clear</button>
+          </div>
+          <div class="log-filters">
+            <div class="filter-btn active" onclick="filterLogs('all',this)">All</div>
+            <div class="filter-btn f-pass" onclick="filterLogs('pass',this)">✅ Pass</div>
+            <div class="filter-btn f-fail" onclick="filterLogs('fail',this)">❌ Fail</div>
+            <div class="filter-btn f-vpn" onclick="filterLogs('vpn',this)">🚫 VPN</div>
+            <div class="filter-btn f-dev" onclick="filterLogs('dev',this)">📱 Device</div>
+          </div>
+          <div class="log-table-wrap">
+            <table>
+              <thead><tr>
+                <th>#</th><th>Time</th><th>Bot</th><th>Hash</th>
+                <th>Status</th><th>Reason</th><th>IP</th>
+              </tr></thead>
+              <tbody id="fullLogTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SETTINGS ===== -->
+      <div class="page" id="page-settings">
+        <div class="setting-group">
+          <div class="setting-group-title">Security</div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-name">Admin Password</div>
+              <div class="setting-desc">Change the panel access password</div>
+            </div>
+            <div class="setting-input">
+              <input type="password" id="newPassInput" placeholder="New password"/>
+              <button class="btn-sm" onclick="changePass()">Update</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <div class="setting-group-title">Verification Controls</div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-name">VPN Detection</div>
+              <div class="setting-desc">Block users with VPN / Proxy / Tor</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="tog-vpn" checked onchange="saveSetting('vpn',this.checked)"/>
+              <div class="toggle-sl"></div>
+            </label>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-name">Same Device Block</div>
+              <div class="setting-desc">Only 1 account allowed per device</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="tog-device" checked onchange="saveSetting('device',this.checked)"/>
+              <div class="toggle-sl"></div>
+            </label>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <div class="setting-group-title">Danger Zone</div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-name">Clear All Logs</div>
+              <div class="setting-desc">Delete all verification history</div>
+            </div>
+            <button class="btn-danger" onclick="if(confirm('Clear all logs?'))clearLogs()">Clear Logs</button>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-name">Remove All Bots</div>
+              <div class="setting-desc">Disconnect all bots from panel</div>
+            </div>
+            <button class="btn-danger" onclick="if(confirm('Remove all bots?'))clearBots()">Remove All</button>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-name">Full Reset</div>
+              <div class="setting-desc">Wipe all data including bots, logs, settings</div>
+            </div>
+            <button class="btn-danger" onclick="if(confirm('FULL RESET? This cannot be undone!'))fullReset()">Reset Everything</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+
+</div><!-- /mainPanel -->
+
+<script>
+// ============================================================
+// DATA HELPERS
+// ============================================================
+const DB = {
+  get:(k,d={})=>{try{return JSON.parse(localStorage.getItem('rm_'+k))||d;}catch{return d;}},
+  set:(k,v)=>localStorage.setItem('rm_'+k,JSON.stringify(v)),
+  del:(k)=>localStorage.removeItem('rm_'+k)
+};
+
+// ============================================================
+// AUTH
+// ============================================================
+const DEFAULT_PASS = '@Ravi12345';
+function getPass(){return localStorage.getItem('rm_pass')||DEFAULT_PASS;}
+
+function doLogin(){
+  const v=document.getElementById('passInput').value;
+  if(v===getPass()){
+    localStorage.setItem('rm_auth','1');
+    document.getElementById('loginScreen').style.display='none';
+    const mp=document.getElementById('mainPanel');
+    mp.style.display='flex';
+    initPanel();
+  } else {
+    const e=document.getElementById('loginErr');
+    e.style.display='block';
+    e.style.animation='none';
+    setTimeout(()=>e.style.animation='shake .4s ease',10);
+  }
+}
+
+function doLogout(){
+  DB.del('auth');localStorage.removeItem('rm_auth');
+  location.reload();
+}
+
+function changePass(){
+  const np=document.getElementById('newPassInput').value.trim();
+  if(!np){showToast('Enter a password!','error');return;}
+  localStorage.setItem('rm_pass',np);
+  document.getElementById('newPassInput').value='';
+  showToast('✅ Password updated!','success');
+}
+
+// Auto login check
+if(localStorage.getItem('rm_auth')==='1'){
+  document.getElementById('loginScreen').style.display='none';
+  const mp=document.getElementById('mainPanel');
+  mp.style.display='flex';
+}
+
+// ============================================================
+// SIDEBAR / NAV
+// ============================================================
+let sidebarCollapsed=false;
+
+function toggleSidebar(){
+  sidebarCollapsed=!sidebarCollapsed;
+  document.getElementById('sidebar').classList.toggle('collapsed',sidebarCollapsed);
+}
+
+function showPage(name,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  if(el) el.classList.add('active');
+  const titles={dashboard:'Dashboard',bots:'Connected Bots',failrate:'Fail Rate Control',logs:'Verification Logs',settings:'Settings'};
+  document.getElementById('pageTitle').textContent=titles[name]||name;
+  if(name==='logs') renderFullLogs(currentLogFilter);
+  if(name==='failrate') renderPerBotSliders();
+  if(name==='bots') renderBots();
+}
+
+// ============================================================
+// CLOCK
+// ============================================================
+setInterval(()=>{
+  document.getElementById('timeClock').textContent=new Date().toLocaleTimeString();
+},1000);
+document.getElementById('timeClock').textContent=new Date().toLocaleTimeString();
+
+// ============================================================
+// BOTS
+// ============================================================
+function getBots(){return DB.get('bots',[]);}
+function saveBots(b){DB.set('bots',b);}
+
+async function addBot(){
+  const token=document.getElementById('newTokenInput').value.trim();
+  const status=document.getElementById('addBotStatus');
+  if(!token){showToast('Enter a token!','error');return;}
+  if(!token.includes(':')){showToast('Invalid token format','error');return;}
+
+  status.innerHTML='<span class="spinner"></span> Fetching bot info...';
+
+  try{
+    const r=await fetch('https://api.telegram.org/bot'+token+'/getMe');
+    const d=await r.json();
+    if(!d.ok){status.textContent='❌ Invalid token!';showToast('Invalid token','error');return;}
+
+    const bots=getBots();
+    if(bots.find(b=>b.token===token)){status.textContent='⚠️ Bot already added!';return;}
+
+    const bot={
+      token,
+      id:d.result.id,
+      name:d.result.first_name||'Bot',
+      username:d.result.username||'unknown',
+      added:Date.now(),
+      verified:0,failed:0,vpn:0,device:0
+    };
+
+    bots.push(bot);
+    saveBots(bots);
+    document.getElementById('newTokenInput').value='';
+    status.textContent='';
+    renderBots();
+    updateStats();
+    renderPerBotSliders();
+    showToast('✅ @'+bot.username+' connected!','success');
+  } catch(e){
+    status.textContent='❌ Network error. Check connection.';
+    showToast('Network error','error');
+  }
+}
+
+async function refreshAllBots(){
+  const bots=getBots();
+  if(!bots.length){showToast('No bots to refresh','error');return;}
+  showToast('🔄 Refreshing...','success');
+  for(let i=0;i<bots.length;i++){
+    try{
+      const r=await fetch('https://api.telegram.org/bot'+bots[i].token+'/getMe');
+      const d=await r.json();
+      if(d.ok){
+        bots[i].name=d.result.first_name||bots[i].name;
+        bots[i].username=d.result.username||bots[i].username;
+        bots[i].id=d.result.id||bots[i].id;
+      }
+    }catch{}
+  }
+  saveBots(bots);
+  renderBots();
+  showToast('✅ All bots refreshed!','success');
+}
+
+function removeBot(token){
+  if(!confirm('Remove this bot?'))return;
+  saveBots(getBots().filter(b=>b.token!==token));
+  renderBots();
+  updateStats();
+  renderPerBotSliders();
+  showToast('Bot removed','success');
+}
+
+function clearBots(){saveBots([]);renderBots();updateStats();renderPerBotSliders();}
+
+function renderBots(){
+  const bots=getBots();
+  document.getElementById('botCountLabel').textContent=bots.length;
+  document.getElementById('navBotCount').textContent=bots.length;
+
+  const grid=document.getElementById('botGrid');
+  if(!bots.length){
+    grid.innerHTML='<div class="empty-state" style="grid-column:1/-1">No bots connected yet.</div>';
+    return;
+  }
+
+  const logs=getLogs();
+
+  grid.innerHTML=bots.map(b=>{
+    const botLogs=logs.filter(l=>l.botUser===b.username);
+    const pass=botLogs.filter(l=>l.status==='pass').length;
+    const fail=botLogs.filter(l=>l.status==='fail').length;
+    const vpn=botLogs.filter(l=>l.reason==='VPN Detected').length;
+    const letter=(b.name||'B')[0].toUpperCase();
+    return `
+    <div class="bot-card">
+      <div class="bot-top">
+        <div class="bot-av">${letter}</div>
+        <div class="bot-meta">
+          <div class="bot-name">${b.name||'Unknown Bot'}</div>
+          <div class="bot-user">@${b.username}</div>
+          <div class="bot-id">ID: ${b.id||'N/A'}</div>
+        </div>
+        <span class="bot-status-badge ${b.online===false?'offline':'online'}">${b.online===false?'● OFFLINE':'● ONLINE'}</span>
+      </div>
+      <div class="bot-stats">
+        <div class="bot-stat">
+          <div class="bsv" style="color:var(--green)">${pass}</div>
+          <div class="bsl">Verified</div>
+        </div>
+        <div class="bot-stat">
+          <div class="bsv" style="color:var(--red)">${fail}</div>
+          <div class="bsl">Failed</div>
+        </div>
+        <div class="bot-stat">
+          <div class="bsv" style="color:var(--gold)">${vpn}</div>
+          <div class="bsl">VPN</div>
+        </div>
+      </div>
+      <div class="bot-actions">
+        <button class="bot-btn" onclick="copyToken('${b.token}')">📋 Token</button>
+        <button class="bot-btn danger" onclick="removeBot('${b.token}')">🗑️ Remove</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function copyToken(t){
+  navigator.clipboard?.writeText(t).then(()=>showToast('✅ Token copied!','success'));
+}
+
+// ============================================================
+// FAIL RATE
+// ============================================================
+function getFailRates(){return DB.get('failRates',{global:0});}
+
+function updatePct(id){
+  const slider=document.getElementById(id==='global'?'globalSlider':'slider_'+id);
+  const display=document.getElementById(id==='global'?'globalPctDisplay':'pct_'+id);
+  const fill=document.getElementById(id==='global'?'globalFill':'fill_'+id);
+  if(!slider)return;
+  const v=parseInt(slider.value);
+  display.textContent=v+'%';
+  display.className='fail-pct-display '+(v<30?'pct-safe':v<70?'pct-warn':'pct-danger');
+  if(fill){
+    fill.style.width=v+'%';
+    fill.style.background=v<30?'var(--green)':v<70?'var(--gold)':'var(--red)';
+  }
+}
+
+function renderPerBotSliders(){
+  const bots=getBots();
+  const fr=getFailRates();
+  const wrap=document.getElementById('perBotFailSliders');
+  if(!bots.length){
+    wrap.innerHTML='<div style="padding:16px;font-size:12px;color:var(--muted2);font-family:var(--mono);text-align:center;">Add bots to set per-bot rates.</div>';
+    return;
+  }
+  wrap.innerHTML=bots.map(b=>{
+    const key=b.token.replace(/[^a-z0-9]/gi,'_');
+    const v=fr['bot_'+b.token]!==undefined?fr['bot_'+b.token]:fr.global||0;
+    return `
+    <div class="fail-card" style="margin-top:12px;">
+      <div class="fail-top">
+        <div class="fail-av">${(b.name||'B')[0]}</div>
+        <div class="fail-meta">
+          <div class="fail-name">🤖 @${b.username}</div>
+          <div class="fail-scope">Per-bot override · ID: ${b.id||'N/A'}</div>
+        </div>
+        <div class="fail-pct-display ${v<30?'pct-safe':v<70?'pct-warn':'pct-danger'}" id="pct_${key}">${v}%</div>
+      </div>
+      <div class="fail-slider-wrap">
+        <input type="range" min="0" max="100" value="${v}" id="slider_${key}" oninput="updatePct('${key}')"/>
+        <div class="slider-track-labels"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+        <div class="rate-visual"><div class="rate-fill" id="fill_${key}" style="width:${v}%;background:${v<30?'var(--green)':v<70?'var(--gold)':'var(--red)'}"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Init global
+  const gv=fr.global||0;
+  document.getElementById('globalSlider').value=gv;
+  updatePct('global');
+}
+
+function saveFailRates(){
+  const fr={};
+  fr.global=parseInt(document.getElementById('globalSlider').value);
+  getBots().forEach(b=>{
+    const key=b.token.replace(/[^a-z0-9]/gi,'_');
+    const s=document.getElementById('slider_'+key);
+    if(s) fr['bot_'+b.token]=parseInt(s.value);
+  });
+  DB.set('failRates',fr);
+  updateStats();
+  showToast('✅ Fail rates saved!','success');
+}
+
+// ============================================================
+// LOGS
+// ============================================================
+function getLogs(){return DB.get('logs',[]);}
+
+function addLog(log){
+  const logs=getLogs();
+  logs.unshift({...log,ts:Date.now(),time:new Date().toLocaleTimeString()});
+  if(logs.length>1000)logs.splice(1000);
+  DB.set('logs',logs);
+  updateStats();
+  const c=document.getElementById('navLogCount');
+  if(c)c.textContent=logs.length;
+}
+
+function clearLogs(){
+  DB.set('logs',[]);
+  renderFullLogs('all');
+  renderDashLogs();
+  updateStats();
+  showToast('✅ Logs cleared','success');
+}
+
+let currentLogFilter='all';
+
+function filterLogs(f,el){
+  currentLogFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  if(el)el.classList.add('active');
+  renderFullLogs(f);
+}
+
+function renderFullLogs(filter){
+  let logs=getLogs();
+  if(filter==='pass') logs=logs.filter(l=>l.status==='pass');
+  else if(filter==='fail') logs=logs.filter(l=>l.status==='fail'&&l.reason!=='VPN Detected'&&l.reason!=='Device already used');
+  else if(filter==='vpn') logs=logs.filter(l=>l.reason==='VPN Detected');
+  else if(filter==='dev') logs=logs.filter(l=>l.reason==='Device already used');
+
+  document.getElementById('logCountLabel').textContent=logs.length;
+  document.getElementById('navLogCount').textContent=getLogs().length;
+
+  const tbody=document.getElementById('fullLogTable');
+  if(!logs.length){
+    tbody.innerHTML='<tr><td colspan="7" class="empty-state">No logs found.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML=logs.map((l,i)=>{
+    const badgeClass=l.status==='pass'?(l.reason==='Already Verified'?'already':'pass'):
+      l.reason==='VPN Detected'?'vpn':l.reason==='Device already used'?'dev':'fail';
+    const badgeText=l.status==='pass'?(l.reason==='Already Verified'?'↩ ALREADY':'✅ PASS'):
+      l.reason==='VPN Detected'?'🚫 VPN':l.reason==='Device already used'?'📱 DEVICE':'❌ FAIL';
+    return `<tr>
+      <td style="color:var(--muted)">${i+1}</td>
+      <td>${l.time||'--'}</td>
+      <td style="color:var(--cyan)">@${l.botUser||'?'}</td>
+      <td style="color:var(--muted)">${(l.hash||'').substring(0,8)||'--'}...</td>
+      <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+      <td style="color:var(--muted2)">${l.reason||'-'}</td>
+      <td style="color:var(--muted2)">${l.ip||'-'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderDashLogs(){
+  const logs=getLogs().slice(0,8);
+  const tbody=document.getElementById('dashLogs');
+  if(!logs.length){
+    tbody.innerHTML='<tr><td colspan="5" class="empty-state">No activity yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML=logs.map(l=>{
+    const bc=l.status==='pass'?(l.reason==='Already Verified'?'already':'pass'):
+      l.reason==='VPN Detected'?'vpn':l.reason==='Device already used'?'dev':'fail';
+    const bt=l.status==='pass'?(l.reason==='Already Verified'?'↩ ALREADY':'✅ PASS'):
+      l.reason==='VPN Detected'?'🚫 VPN':l.reason==='Device already used'?'📱 DEVICE':'❌ FAIL';
+    return `<tr>
+      <td>${l.time||'--'}</td>
+      <td style="color:var(--cyan)">@${l.botUser||'?'}</td>
+      <td><span class="badge ${bc}">${bt}</span></td>
+      <td style="color:var(--muted2)">${l.reason||'-'}</td>
+      <td style="color:var(--muted2)">${l.ip||'-'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ============================================================
+// STATS
+// ============================================================
+function updateStats(){
+  const logs=getLogs();
+  const bots=getBots();
+  const fr=getFailRates();
+  const today=new Date().toDateString();
+  const todayLogs=logs.filter(l=>new Date(l.ts).toDateString()===today);
+  const pass=logs.filter(l=>l.status==='pass').length;
+  const fail=logs.filter(l=>l.status==='fail').length;
+  const total=pass+fail;
+
+  document.getElementById('st-bots').textContent=bots.length;
+  document.getElementById('st-pass').textContent=pass;
+  document.getElementById('st-fail').textContent=fail;
+  document.getElementById('st-vpn').textContent=logs.filter(l=>l.reason==='VPN Detected').length;
+  document.getElementById('st-dev').textContent=logs.filter(l=>l.reason==='Device already used').length;
+  document.getElementById('st-rate').textContent=(fr.global||0)+'%';
+  document.getElementById('st-today').textContent=todayLogs.length;
+  document.getElementById('st-success-rate').textContent=total>0?Math.round((pass/total)*100)+'%':'0%';
+  document.getElementById('navBotCount').textContent=bots.length;
+  document.getElementById('navLogCount').textContent=logs.length;
+  renderDashLogs();
+}
+
+// ============================================================
+// SETTINGS
+// ============================================================
+function loadSettings(){
+  const s=DB.get('settings',{vpn:true,device:true});
+  document.getElementById('tog-vpn').checked=s.vpn!==false;
+  document.getElementById('tog-device').checked=s.device!==false;
+}
+
+function saveSetting(k,v){
+  const s=DB.get('settings',{});
+  s[k]=v;DB.set('settings',s);
+  showToast('✅ Saved','success');
+}
+
+function fullReset(){
+  ['rm_bots','rm_logs','rm_failRates','rm_settings'].forEach(k=>localStorage.removeItem(k));
+  initPanel();
+  showToast('✅ Reset complete','success');
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+let toastTimer;
+function showToast(msg,type='success'){
+  const old=document.querySelector('.toast');
+  if(old)old.remove();
+  clearTimeout(toastTimer);
+  const t=document.createElement('div');
+  t.className='toast '+type;
+  t.textContent=msg;
+  document.body.appendChild(t);
+  toastTimer=setTimeout(()=>t.remove(),3000);
+}
+
+// ============================================================
+// EXPOSE FOR verify.html
+// ============================================================
+window.RaviAdmin={
+  logVerify:(data)=>addLog(data),
+  getFailRate:(botToken)=>{
+    const fr=DB.get('failRates',{global:0});
+    return fr['bot_'+botToken]!==undefined?fr['bot_'+botToken]:(fr.global||0);
+  },
+  getSettings:()=>DB.get('settings',{vpn:true,device:true})
+};
+
+// ============================================================
+// INIT
+// ============================================================
+function initPanel(){
+  renderBots();
+  updateStats();
+  renderFullLogs('all');
+  loadSettings();
+  renderPerBotSliders();
+  // Auto check all bots status on load
+  setTimeout(autoCheckBots, 800);
+}
+
+// Auto ping all bots to verify they are still online
+async function autoCheckBots(){
+  const bots = getBots();
+  if(!bots.length) return;
+  let changed = false;
+  for(let b of bots){
+    try{
+      const r = await fetch('https://api.telegram.org/bot'+b.token+'/getMe',{signal:AbortSignal.timeout(5000)});
+      const d = await r.json();
+      if(d.ok){
+        b.name = d.result.first_name || b.name;
+        b.username = d.result.username || b.username;
+        b.id = d.result.id || b.id;
+        b.online = true;
+        changed = true;
+      } else {
+        b.online = false;
+        changed = true;
+      }
+    } catch {
+      b.online = false;
+      changed = true;
+    }
+  }
+  if(changed){ saveBots(bots); renderBots(); }
+}
+
+if(localStorage.getItem('rm_auth')==='1') initPanel();
+</script>
+</body>
+</html>
